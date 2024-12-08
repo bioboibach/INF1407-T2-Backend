@@ -6,18 +6,26 @@ from rest_framework import status
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 
-class ReviewGet(APIView):
+class ReviewGetView(APIView):
+    '''
+    View para get de toda lista de resenhas
+    '''
     @swagger_auto_schema(
-        operation_summary="Get all reviews",
-        operation_description="Lista todas reviews",
+        operation_summary="Get Resenhas",
+        operation_description="Lista todas Resenhas",
         responses={200: ReviewSerializer.Review(many=True)}
     )
     def get(self, request):
+        '''
+        Retorna 
+
+        '''
         reviews = Review.objects.all().order_by('id')
         serializer = ReviewSerializer.Review(reviews, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
-    
-class ReviewView(APIView):
+
+
+class ReviewPostView(APIView):
     @swagger_auto_schema(
         operation_summary="Create Review",
         operation_description="Creates new review",
@@ -27,7 +35,7 @@ class ReviewView(APIView):
                 "product" : openapi.Schema(description="Produto que está sendo avaliado", type=openapi.TYPE_STRING),
                 "content" : openapi.Schema(description="Avaliação do autor", type=openapi.TYPE_STRING),
                 "brand" : openapi.Schema(description="Marca do produto", type=openapi.TYPE_STRING),
-                "author" : openapi.Schema(description="Nome de usuário do autor da avaliação", type=openapi.TYPE_OBJECT),
+                "author" : openapi.Schema(description="Nome de usuário do autor da avaliação", type=openapi.TYPE_STRING),
                 "product_url" : openapi.Schema(description="Link para a página do produto", type=openapi.TYPE_STRING),
                 "score" : openapi.Schema(description="Nota dada pelo usuário", type=openapi.TYPE_INTEGER)
             }
@@ -41,6 +49,7 @@ class ReviewView(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+class ReviewDeleteView(APIView):
     @swagger_auto_schema(
             operation_summary = "Deletar Resenha",
             operation_description='Remove uma Resenha',
@@ -57,7 +66,8 @@ class ReviewView(APIView):
         except Review.DoesNotExist:
             return Response({'error': 'No Review found'}, 
                             status=status.HTTP_404_NOT_FOUND)
-        
+
+class ReviewPutView(APIView):
     @swagger_auto_schema(
         operation_summary="Updates review", operation_description="Atualiza as informações de uma resenha",
         request_body=openapi.Schema(
@@ -66,8 +76,7 @@ class ReviewView(APIView):
                 "product" : openapi.Schema(description="Produto que está sendo avaliado", type=openapi.TYPE_STRING),
                 "content" : openapi.Schema(description="Avaliação do autor", type=openapi.TYPE_STRING),
                 "brand" : openapi.Schema(description="Marca do produto", type=openapi.TYPE_STRING),
-                "date_posted" : openapi.Schema(description="Data da publicação da avaliação", type=openapi.TYPE_OBJECT),
-                "author" : openapi.Schema(description="Nome de usuário do autor da avaliação", type=openapi.TYPE_OBJECT),
+                "author" : openapi.Schema(description="Nome de usuário do autor da avaliação", type=openapi.TYPE_STRING),
                 "product_url" : openapi.Schema(description="Link para a página do produto", type=openapi.TYPE_STRING),
                 "score" : openapi.Schema(description="Nota dada pelo usuário", type=openapi.TYPE_INTEGER)
             }
