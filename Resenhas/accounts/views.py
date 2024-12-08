@@ -12,9 +12,12 @@ from rest_framework import status
 
 
 class CreateUserView(APIView):
+    '''
+    View para POST, criar um novo usuário
+    '''
     @swagger_auto_schema(
-        operation_summary='Create User',
-        operation_description='Reuturns User if succeeded',
+        operation_summary='Cria User',
+        operation_description='Cria um User na base de dados e retorna o Objeto User do usuario criado caso bem sucedido',
         request_body=openapi.Schema(
             type=openapi.TYPE_OBJECT,
             properties={
@@ -30,6 +33,16 @@ class CreateUserView(APIView):
         },
     )
     def post(self, request):
+        '''
+        Input: request um objeto representando o pedido HTTP
+        
+        Output: Objeto User (JSON) caso a função seja bem sucedida
+
+        Depende de:
+        - APIView
+        - UserSerializer
+        - Response
+        '''
         serializer = UserSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
@@ -38,22 +51,24 @@ class CreateUserView(APIView):
             return Response(serializer.errors,
                             status.HTTP_400_BAD_REQUEST)  
 
-
 class CustomAuthToken(ObtainAuthToken):
     '''
-    view para gerenciamento de tokens de autenticação
+    View:
+    - GET de um Authenticator Token
+    - POST um Objeto User na base de dados
+    - DELETE o Authenticator Token especificado
     '''
     @swagger_auto_schema(
-        operation_summary='Obtém o username do usuário',
-        operation_description="Retorna o username do usuário ou apenas visitante se o usuário",
+        operation_summary = 'Encontra User a partir do Token',
+        operation_description = "Retorna a string 'username' do User caso seja um usuário logado, retorna 'GuestUser' caso não seja autenticado",
         security=[{'Token':[]}],
         manual_parameters=[
             openapi.Parameter(
                 'Authorization',
                 openapi.IN_HEADER,
                 type=openapi.TYPE_STRING,
-                description='Token de autenticação no formato "token \<<i>valor do token</i>\>"',
-                default='token ',
+                description='Type in the Authenticator Token',
+                default = 'Token ' 
             ),
         ],
         responses={
@@ -68,34 +83,51 @@ class CustomAuthToken(ObtainAuthToken):
     )
     def get(self, request):
         '''
-        Parâmetros: o token de acesso
-        Retorna: o username ou 'visitante'
+        Input: request um objeto representando o pedido HTTP
+        
+        Output: retorna o username caso seja um usuário, retorna 'GuestUser' caso não seja autenticado
+
+        Depende de:
+        - Token
+        - APIView
+        - Response
         '''
         try:
-            token = request.META.get('HTTP_AUTHORIZATION').split(' ')[1] # token
-            token_obj = Token.objects.get(key=token)
-            user = token_obj.user
+            token = request.META.get('HTTP_AUTHORIZATION').split(' ')[1].objects.get(key=token)
+            user = token.user
             return Response({'username': user.username},status=status.HTTP_200_OK)
         except (Token.DoesNotExist, AttributeError):
-            return Response({'username': 'visitante'},status=status.HTTP_404_NOT_FOUND)
+            return Response({'username': 'GuestUser'},status=status.HTTP_404_NOT_FOUND)
 
     @swagger_auto_schema(
-        operation_summary='Obter o token de autenticação',
-        operation_description='Retorna o token em caso de sucesso na autenticação ou HTTP 401',
+        operation_summary='Get token pelo login',
+        operation_description='Retorna o Authenticator Token depois do login do usuário',
         request_body=openapi.Schema(
             type=openapi.TYPE_OBJECT,
             properties={
                 'username': openapi.Schema(type=openapi.TYPE_STRING),
                 'password': openapi.Schema(type=openapi.TYPE_STRING),
             },
-            required=['username', 'password', ],
+            required=['username', 'password'],
         ),
         responses={
             status.HTTP_200_OK: 'Token is returned.',
             status.HTTP_401_UNAUTHORIZED: 'Unauthorized request.',
         },  
-)
+    )
     def post(self, request, *args, **kwargs):
+        '''
+        Input: 
+        - request um objeto representando o pedido HTTP
+        - lista de argumentos contendo username e password
+        
+        Output: Objeto User (JSON) caso a função seja bem sucedida
+
+        Depende de:
+        - Token
+        - APIView
+        - Response
+        '''
         serializer = self.serializer_class(data=request.data, context={'request': request})
         if serializer.is_valid():
             username = serializer.validated_data['username']
@@ -109,39 +141,49 @@ class CustomAuthToken(ObtainAuthToken):
             return Response({'token': token.key})
         
     @swagger_auto_schema(
-        operation_description='Realiza logout do usuário, apagando o seu token',
-        operation_summary='Realiza logout',
+        operation_summary='Logout do User',
+        operation_description='Faz logout do User baseado no Authenticator Token atual',
         security=[{'Token':[]}],
         manual_parameters=[
-            openapi.Parameter('Authorization', openapi.IN_HEADER,
-            type=openapi.TYPE_STRING, default='token ',
-            description='Token de autenticação no formato "token \<<i>valor do token</i>\>"',
-        ),
-    ],
-    request_body=None,
-    responses={
-        status.HTTP_200_OK: 'User logged out',
-        status.HTTP_400_BAD_REQUEST: 'Bad request',
-        status.HTTP_401_UNAUTHORIZED: 'User not authenticated',
-        status.HTTP_403_FORBIDDEN: 'User not authorized to logout',
-        status.HTTP_500_INTERNAL_SERVER_ERROR: 'Erro no servidor',
-    },
+            openapi.Parameter('Authorization',
+                openapi.IN_HEADER,
+                type=openapi.TYPE_STRING,
+                description='Type in the Authenticator Token',
+                default = 'Token ' 
+            ),
+        ],
+        responses={
+            status.HTTP_200_OK: 'User logged out',
+            status.HTTP_400_BAD_REQUEST: 'Bad request',
+            status.HTTP_401_UNAUTHORIZED: 'User not authenticated',
+            status.HTTP_403_FORBIDDEN: 'User not authorized to logout',
+            status.HTTP_500_INTERNAL_SERVER_ERROR: 'Server Error',
+        },
     )
     def delete(self, request):
+        '''
+        Input: request um objeto representando o pedido HTTP
+        
+        Output: mensagem de logout
+
+        Depende de:
+        - Token
+        - APIView
+        - Response
+        '''
         try:
-            token = request.META.get('HTTP_AUTHORIZATION').split(' ')[1]
-            token_obj = Token.objects.get(key=token)
+            token = request.META.get('HTTP_AUTHORIZATION').split(' ')[1].objects.get(key=token)
         except (Token.DoesNotExist, IndexError):
             return Response({'msg': 'Token não existe.'}, status=status.HTTP_400_BAD_REQUEST)
-        user = token_obj.user
+        user = token.user
         if user.is_authenticated:
             request.user = user
             logout(request)
             token = Token.objects.get(user=user)
             token.delete()
-            return Response({'msg': 'Logout bem-sucedido.'},status=status.HTTP_200_OK)
+            return Response({'msg': 'User logged out'},status=status.HTTP_200_OK)
         else:
-            return Response({'msg': 'Usuário não autenticado.'},status=status.HTTP_403_FORBIDDEN) 
+            return Response({'msg': 'No User signed'},status=status.HTTP_403_FORBIDDEN) 
 
 
 

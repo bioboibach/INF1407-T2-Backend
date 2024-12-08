@@ -16,7 +16,8 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from reviews import views
+from reviews import views as rev_view
+from accounts import views as acc_view
 from rest_framework import routers, permissions
 from rest_framework.documentation import include_docs_urls
 from rest_framework.schemas import get_schema_view
@@ -40,11 +41,12 @@ urlpatterns = [
     path('api/v1/', include(routers.DefaultRouter().urls)),
     path('openapi', get_schema_view(title="ResenhAPI", description="API para obter Resenhas",), name='openapi-schema'),
 
-    path('accounts/', include('accounts.urls')),
+    path('api/accounts/token-auth/', acc_view.CustomAuthToken.as_view(), name='token-auth'),
+    path('api/accounts/create-user/', acc_view.CreateUserView.as_view(), name='create-user'),
 
-    path('api/resenhas/', views.ReviewGetView.as_view(), name='resenha-list'),
-    path('api/resenhas/post/', views.ReviewPostView.as_view(), name='resenha-post'),
-    path('api/resenhas/delete/<int:pk>/', views.ReviewDeleteView.as_view(), name='resenha-delete'),
-    path('api/resenhas/update/<int:pk>/', views.ReviewPutView.as_view(), name='resenha-update'),
-    path('api/resenhas/<int:pk>/', views.ReviewGetOne.as_view(), name='resenha-getone'),
+    path('api/resenhas/', rev_view.ReviewGetView.as_view(), name='resenha-list'),
+    path('api/resenhas/post/', rev_view.ReviewPostView.as_view(), name='resenha-post'),
+    path('api/resenhas/delete/<int:pk>/', rev_view.ReviewDeleteView.as_view(), name='resenha-delete'),
+    path('api/resenhas/update/<int:pk>/', rev_view.ReviewPutView.as_view(), name='resenha-update'),
+    path('api/resenhas/<int:pk>/', rev_view.ReviewGetOne.as_view(), name='resenha-getone'),
 ]
