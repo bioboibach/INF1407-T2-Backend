@@ -1,11 +1,11 @@
 # Repositório de INF1407 - Programação para Web
-Repositório para Disciplina INF1407 - Programação Para a Web, 09/09/2024
+Repositório Backend para Disciplina INF1407 - Programação Para a Web
 
 
 # Trabalho 2
 
 ## Relatorio
-Fizemos um site que permite usuários postarem resenhas de produtos que compraram na internet, dando uma nota de 1 a 5 estrelas e descrevendo com mais detalhes suas experiências com o produto.
+Fizemos um site que permite usuários postarem resenhas de produtos que compraram na internet, dando uma nota de 1 a 5 e descrevendo com mais detalhes suas experiências com o produto.
 
 Cada resenha é composta de:
 - nome do produto
@@ -22,18 +22,17 @@ Cada usuário é capaz de:
  
 
 ### Manual do Usuário
-Na home page, o usuário terá três opções: ler resenhas, escrever sua própria resenha ou fazer login. A opção de escrever a própria resenha fará com que o usuário faça login ou se cadastre antes. Após o login, o usuário poderá publicar uma resenha e seu nome aparecerá no canto direito do navbar como um menu dropdown, contendo as opçoes: "Minhas Resenhas" e "Logout".
+Documentação da API do backend em swagger pode ser encontrada em http://ec2-98-83-16-69.compute-1.amazonaws.com:8000/swagger/
 
-O usuário apenas pode editar ou apagar postagens que aparecem na página "Minhas Resenhas". As mesmas postagens não possuem essas opções na página com as resenhas dos demais usuários.
+### O que Funcionou
 
-### O que deu Certo
- - criação, edição e remoção de resenhas de produtos
- - registro de usuário
- - login e logout de usuário
- - área restrita para usuário autenticado
+- Documentação e consultas via Swagger
+- Contém as quatro operações básicas em banco de dados (CRUD)
+- Foi publicado na AWS com uso de IP elástico e nohup
+- 3 endpoints protegidos
+- Diferentes usuários tem visões diferentes do site
 
 ### O que não Funcionou
  - troca e recuperação de senha
- - remoção de cadastro
 
 Autores: Bernardo Bach (1613231), Leonardo Santiago (2410725)
