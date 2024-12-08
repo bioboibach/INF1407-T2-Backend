@@ -8,7 +8,7 @@ from drf_yasg import openapi
 
 class ReviewGetView(APIView):
     '''
-    View para get de toda lista de resenhas
+    View para GET de toda lista de resenhas
     '''
     @swagger_auto_schema(
         operation_summary="Get Resenhas",
@@ -17,15 +17,24 @@ class ReviewGetView(APIView):
     )
     def get(self, request):
         '''
-        Retorna 
+        Input: request um objeto representando o pedido HTTP
+        
+        Output: JSON com todas Resenhas da base de dados
 
+        Depende de:
+        - APIView
+        - Review
+        - ReviewSerializer
+        - Response
         '''
         reviews = Review.objects.all().order_by('id')
         serializer = ReviewSerializer.Review(reviews, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-
 class ReviewPostView(APIView):
+    '''
+    View para POST de uma resenhas
+    '''
     @swagger_auto_schema(
         operation_summary="Create Review",
         operation_description="Creates new review",
@@ -43,6 +52,16 @@ class ReviewPostView(APIView):
         responses={201: ReviewSerializer.Review()},
     )
     def post(self, request):
+        '''
+        Input: request um objeto representando o pedido HTTP
+        
+        Output: Adiciona uma Resenha na base de dados 
+
+        Depende de:
+        - APIView
+        - ReviewSerializer
+        - Response
+        '''
         serializer = ReviewSerializer.Review(data=request.data)
         if serializer.is_valid():
             serializer.save()
@@ -50,6 +69,9 @@ class ReviewPostView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class ReviewDeleteView(APIView):
+    '''
+    View para DELETE uma resenhas
+    '''
     @swagger_auto_schema(
             operation_summary = "Deletar Resenha",
             operation_description='Remove uma Resenha',
@@ -59,6 +81,18 @@ class ReviewDeleteView(APIView):
             },
     )
     def delete(self, request, pk=None):
+        '''
+        Input: 
+        - request um objeto representando o pedido HTTP
+        - int usado como pk do model
+        
+        Output: Remove a row com a pk passada no input 
+
+        Depende de:
+        - APIView
+        - Review
+        - Response
+        '''
         try:
             resenha = Review.objects.get(id=pk)
             resenha.delete()
@@ -68,6 +102,9 @@ class ReviewDeleteView(APIView):
                             status=status.HTTP_404_NOT_FOUND)
 
 class ReviewPutView(APIView):
+    '''
+    View para PUT, editar uma resenha
+    '''
     @swagger_auto_schema(
         operation_summary="Updates review", operation_description="Atualiza as informações de uma resenha",
         request_body=openapi.Schema(
@@ -85,6 +122,19 @@ class ReviewPutView(APIView):
                     400:ReviewSerializer.Review()},
     )
     def put(self, request, pk):
+        '''
+        Input: 
+        - request um objeto representando o pedido HTTP
+        - int usado como pk do model
+        
+        Output: Registra os novos valores da row 'pk' na base de dados
+
+        Depende de:
+        - APIView
+        - Review
+        - ReviewSerializer
+        - Response
+        '''
         rev = Review.objects.get(pk=pk)
         serializer = ReviewSerializer.Review(rev, data=request.data)
         if serializer.is_valid():
@@ -94,12 +144,28 @@ class ReviewPutView(APIView):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class ReviewGetOne(APIView):
+    '''
+    View para GET apenas uma resenha
+    '''
     @swagger_auto_schema(
     operation_summary="Get one review",
     operation_description="Lista uma review pela id",
     responses={200: ReviewSerializer.Review(many=True)}
     )
     def get(self, request, pk):
+        '''
+        Input: 
+        - request um objeto representando o pedido HTTP
+        - int usado como pk do model
+        
+        Output: Retorna uma única row da base de dados dada pela pk
+
+        Depende de:
+        - APIView
+        - Review
+        - ReviewSerializer
+        - Response
+        '''
         reviews = Review.objects.get(pk = pk)
         serializer = ReviewSerializer.Review(reviews)
         return Response(serializer.data, status=status.HTTP_200_OK)
