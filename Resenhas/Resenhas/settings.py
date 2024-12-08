@@ -21,7 +21,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-+cd5d%9tg#v(t==-@1=y$ap8(i(4ef_r*p!jbb&$)0pp*397bw'
+SECRET_KEY = 'django-insecure-+cd6d%9tg#v(t==-@1=y$ap8(i(4ff_r*p!jbb&$)0pp*397bw'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -43,7 +43,6 @@ INSTALLED_APPS = [
     'accounts',
 
     #others
-    'django_rest_passwordreset', #TODO: maybe rm
     'rest_framework',
     'rest_framework.authtoken',
     "drf_yasg",
@@ -63,7 +62,7 @@ MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
 ]
 
-ROOT_URLCONF = 'Resenhas.urls' #TODO
+ROOT_URLCONF = 'Resenhas.urls'
 
 TEMPLATES = [
     {
@@ -85,7 +84,7 @@ CORS_ORIGIN_ALLOW_ALL = True
 CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
 
-WSGI_APPLICATION = 'Resenhas.wsgi.application' #TODO
+WSGI_APPLICATION = 'Resenhas.wsgi.application'
 
 
 # Database
@@ -141,12 +140,3 @@ STATIC_ROOT = os.path.join(BASE_DIR, "frontend")
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
-
- #TODO
-# Configure Django App for Heroku.
-try:
-    import django_heroku
-    django_heroku.settings(locals())
-except:
-    pass
