@@ -2,7 +2,7 @@
 URL configuration for Resenhas project.
 
 The `urlpatterns` list routes URLs to views. For more information please see:
-    https://docs.djangoproject.com/en/5.1/topics/http/urls/
+    https://docs.djangoproject.com/en/4.2/topics/http/urls/
 Examples:
 Function views
     1. Add an import:  from my_app import views
@@ -14,36 +14,35 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
-
 from django.contrib import admin
-from django.urls import path
-from django.urls.conf import include
-
-from rest_framework import routers
-from rest_framework import permissions
+from django.urls import path, include
+from reviews import views
+from rest_framework import routers, permissions
 from rest_framework.documentation import include_docs_urls
 from rest_framework.schemas import get_schema_view
-from drf_yasg.views import get_schema_view
+from drf_yasg.views import get_schema_view as yasg_schema_view
 from drf_yasg import openapi
 
-schema_view = get_schema_view(
+schema_view = yasg_schema_view(
     openapi.Info(
         title = "Resenha Swagger API",
         default_version = 'v1',
         description = "Documentação do Projeto - Resenhas",
-        contact = openapi.Contact(email = "resenhas@puc-rio.br"),
-        license = openapi.License(name = 'Apache 2.0')
     ),
     public=True,
     permission_classes=(permissions.AllowAny,)
 )
-
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/', include('reviews.urls')),
 
-    #swagger tutorial
-    path('swagger/', schema_view.with_ui('swagger', cache_timeout = 0), name = 'schema-swagger-ui'),
-    path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
-    path('', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
+    path('docs/', include_docs_urls(title='Documentação da API')),
+    path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema_swagger-ui'),
+    path('api/v1/', include(routers.DefaultRouter().urls)),
+    path('openapi', get_schema_view(title="ResenhAPI", description="API para obter Resenhas",), name='openapi-schema'),
+
+    path('accounts/', include('accounts.urls')),
+
+    path('', views.ReviewGet.as_view(), name='resenha-list'),
+    path('api/resenhas/', views.ReviewView.as_view(), name='resenha-get'),
+    path('api/resenhas/getone/', views.ReviewGetOne.as_view(), name='resenha-getone'),
 ]

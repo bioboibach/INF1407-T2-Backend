@@ -1,43 +1,97 @@
-### AFTER ###
+from reviews.serializers import ReviewSerializer
 from rest_framework.views import APIView
+from .models import *
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
-from .models import Review
-from .serializers import Serializer
-from rest_framework.authtoken.models import Token
-from django.contrib.auth import authenticate
-from django.contrib.auth import login
-from django.contrib.auth import logout
-from django.contrib.auth.models import User
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 
-class ReView(APIView):
-    '''
-    CRUD
-    '''
-
-    @swagger_auto_schema (
-        operation_summary = 'Get Resenhas',
-        operation_description = "Lista todas as resenhas",
-        responses={200: Serializer(many=True)}
+class ReviewGet(APIView):
+    @swagger_auto_schema(
+        operation_summary="Get all reviews",
+        operation_description="Lista todas reviews",
+        responses={200: ReviewSerializer.Review(many=True)}
     )
     def get(self, request):
-        queryset = Review.objects.all().order_by('name')
-        serializer = Serializer(queryset, many=True)
-        return Response(serializer.data)
-
+        reviews = Review.objects.all().order_by('id')
+        serializer = ReviewSerializer.Review(reviews, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
+class ReviewView(APIView):
     @swagger_auto_schema(
-        operation_summary = "Nova Resenha",
-        operation_description = "Cria nova resenha",
-        request_body = Serializer,
-        responses = {201: Serializer}
+        operation_summary="Create Review",
+        operation_description="Creates new review",
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            properties={
+                "product" : openapi.Schema(description="Produto que está sendo avaliado", type=openapi.TYPE_STRING),
+                "content" : openapi.Schema(description="Avaliação do autor", type=openapi.TYPE_STRING),
+                "brand" : openapi.Schema(description="Marca do produto", type=openapi.TYPE_STRING),
+                "date_posted" : openapi.Schema(description="Data da publicação da avaliação", type=openapi.TYPE_OBJECT),
+                "author" : openapi.Schema(description="Nome de usuário do autor da avaliação", type=openapi.TYPE_OBJECT),
+                "product_url" : openapi.Schema(description="Link para a página do produto", type=openapi.TYPE_STRING),
+                "score" : openapi.Schema(description="Nota dada pelo usuário", type=openapi.TYPE_INTEGER)
+            }
+        ),
+        responses={201: ReviewSerializer.Review()},
     )
     def post(self, request):
-        serializer = Serializer(data=request.data)
+        serializer = ReviewSerializer.Review(data=request.data)
         if serializer.is_valid():
             serializer.save()
-            return Response(serializer.data,status.HTTP_201_CREATED)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    @swagger_auto_schema(
+            operation_summary = "Deletar Resenha",
+            operation_description='Remove uma Resenha',
+            responses={
+                204: ReviewSerializer.Review(),
+                404: None,
+            },
+    )
+    def delete(self, request, pk=None):
+        try:
+            resenha = Review.objects.get(id=pk)
+            resenha.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        except Review.DoesNotExist:
+            return Response({'error': 'No Review found'}, 
+                            status=status.HTTP_404_NOT_FOUND)
+        
+    @swagger_auto_schema(
+        operation_summary="Updates review", operation_description="Atualiza as informações de uma resenha",
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            properties={
+                "product" : openapi.Schema(description="Produto que está sendo avaliado", type=openapi.TYPE_STRING),
+                "content" : openapi.Schema(description="Avaliação do autor", type=openapi.TYPE_STRING),
+                "brand" : openapi.Schema(description="Marca do produto", type=openapi.TYPE_STRING),
+                "date_posted" : openapi.Schema(description="Data da publicação da avaliação", type=openapi.TYPE_OBJECT),
+                "author" : openapi.Schema(description="Nome de usuário do autor da avaliação", type=openapi.TYPE_OBJECT),
+                "product_url" : openapi.Schema(description="Link para a página do produto", type=openapi.TYPE_STRING),
+                "score" : openapi.Schema(description="Nota dada pelo usuário", type=openapi.TYPE_INTEGER)
+            }
+        ),
+        responses={200:ReviewSerializer.Review(), 
+                    400:ReviewSerializer.Review()},
+    )
+    def put(self, request, pk):
+        rev = Review.objects.get(pk=pk)
+        serializer = ReviewSerializer.Review(rev, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
         else:
-            return Response(serializer.errors,status.HTTP_400_BAD_REQUEST)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class ReviewGetOne(APIView):
+    @swagger_auto_schema(
+    operation_summary="Get one review",
+    operation_description="Lista uma review pela id",
+    responses={200: ReviewSerializer.Review(many=True)}
+    )
+    def get(self, request, pk):
+        reviews = Review.objects.get(pk = pk)
+        serializer = ReviewSerializer.Review(reviews)
+        return Response(serializer.data, status=status.HTTP_200_OK)
