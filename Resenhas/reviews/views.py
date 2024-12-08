@@ -27,7 +27,11 @@ class ReviewView(APIView):
                 "product" : openapi.Schema(description="Produto que está sendo avaliado", type=openapi.TYPE_STRING),
                 "content" : openapi.Schema(description="Avaliação do autor", type=openapi.TYPE_STRING),
                 "brand" : openapi.Schema(description="Marca do produto", type=openapi.TYPE_STRING),
+<<<<<<< HEAD
                 "author" : openapi.Schema(description="Nome de usuário do autor da avaliação", type=openapi.TYPE_STRING),
+=======
+                "author" : openapi.Schema(description="Nome de usuário do autor da avaliação", type=openapi.TYPE_OBJECT),
+>>>>>>> 41efcbc8d05391d642fc099b0ee2eb8d8d9de89c
                 "product_url" : openapi.Schema(description="Link para a página do produto", type=openapi.TYPE_STRING),
                 "score" : openapi.Schema(description="Nota dada pelo usuário", type=openapi.TYPE_INTEGER)
             }
