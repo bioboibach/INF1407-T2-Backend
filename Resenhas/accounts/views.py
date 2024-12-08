@@ -68,6 +68,7 @@ class CustomAuthToken(ObtainAuthToken):
                 openapi.IN_HEADER,
                 type=openapi.TYPE_STRING,
                 description='Type in the Authenticator Token',
+                default = 'Token ' 
             ),
         ],
         responses={
@@ -92,8 +93,8 @@ class CustomAuthToken(ObtainAuthToken):
         - Response
         '''
         try:
-            token_obj = Token.objects.get(key=request.META.get('HTTP_AUTHORIZATION'))
-            user = token_obj.user
+            token = request.META.get('HTTP_AUTHORIZATION').split(' ')[1].objects.get(key=token)
+            user = token.user
             return Response({'username': user.username},status=status.HTTP_200_OK)
         except (Token.DoesNotExist, AttributeError):
             return Response({'username': 'GuestUser'},status=status.HTTP_404_NOT_FOUND)
@@ -148,6 +149,7 @@ class CustomAuthToken(ObtainAuthToken):
                 openapi.IN_HEADER,
                 type=openapi.TYPE_STRING,
                 description='Type in the Authenticator Token',
+                default = 'Token ' 
             ),
         ],
         responses={
@@ -170,11 +172,10 @@ class CustomAuthToken(ObtainAuthToken):
         - Response
         '''
         try:
-            token = request.META.get('HTTP_AUTHORIZATION').split(' ')[1]
-            token_obj = Token.objects.get(key=token)
+            token = request.META.get('HTTP_AUTHORIZATION').split(' ')[1].objects.get(key=token)
         except (Token.DoesNotExist, IndexError):
             return Response({'msg': 'Token não existe.'}, status=status.HTTP_400_BAD_REQUEST)
-        user = token_obj.user
+        user = token.user
         if user.is_authenticated:
             request.user = user
             logout(request)
