@@ -22,6 +22,8 @@ Cada usuário é capaz de:
  
 
 ### Manual do Usuário
+Instalar requirements.txt
+
 Documentação da API do backend em swagger pode ser encontrada em http://ec2-98-83-16-69.compute-1.amazonaws.com:8000/swagger/
 
 ### O que Funcionou
