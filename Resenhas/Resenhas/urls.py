@@ -42,7 +42,9 @@ urlpatterns = [
 
     path('accounts/', include('accounts.urls')),
 
-    path('', views.ReviewGet.as_view(), name='resenha-list'),
-    path('api/resenhas/', views.ReviewView.as_view(), name='resenha-get'),
-    path('api/resenhas/getone/', views.ReviewGetOne.as_view(), name='resenha-getone'),
+    path('api/resenhas/', views.ReviewGetView.as_view(), name='resenha-list'),
+    path('api/resenhas/post/', views.ReviewPostView.as_view(), name='resenha-post'),
+    path('api/resenhas/delete/<int:pk>/', views.ReviewDeleteView.as_view(), name='resenha-delete'),
+    path('api/resenhas/update/<int:pk>/', views.ReviewPutView.as_view(), name='resenha-update'),
+    path('api/resenhas/<int:pk>/', views.ReviewGetOne.as_view(), name='resenha-getone'),
 ]
