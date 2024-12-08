@@ -129,10 +129,12 @@ class CustomAuthToken(ObtainAuthToken):
         - Response
         '''
         serializer = self.serializer_class(data=request.data, context={'request': request})
+        user = None
         if serializer.is_valid():
             username = serializer.validated_data['username']
             password = serializer.validated_data['password']
             user = authenticate(request, username=username, password=password)
+            
         if user == None:
             return Response(status=status.HTTP_401_UNAUTHORIZED)
         else:
