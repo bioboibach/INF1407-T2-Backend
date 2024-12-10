@@ -129,7 +129,6 @@ class CustomAuthToken(ObtainAuthToken):
         - Response
         '''
         serializer = self.serializer_class(data=request.data, context={'request': request})
-        user = None
         if serializer.is_valid():
             username = serializer.validated_data['username']
             password = serializer.validated_data['password']
